@@ -1,0 +1,71 @@
+# FastAPI and Core Web Framework
+fastapi
+uvicorn
+gunicorn
+pydantic
+pydantic-settings
+
+# Database and Storage
+redis
+elasticsearch
+pymongo
+sqlalchemy
+alembic
+
+# Message Queue and Task Processing
+celery
+rabbitmq
+aio-pika
+kombu
+
+# Azure Cloud Services
+azure-storage-blob
+azure-identity
+azure-keyvault-secrets
+
+# CrewAI and AI/ML
+crewai
+langchain
+langchain-community
+langchain-openai
+langchain-anthropic
+openai
+anthropic
+tiktoken
+
+# Document Processing and RAG
+llama-index
+llama-index-embeddings-openai
+llama-index-vector-stores-elasticsearch
+llama-index-retrievers-bm25
+docling
+python-docx
+python-pptx
+
+# Text Processing and NLP
+transformers
+sentence-transformers
+beautifulsoup4
+markdownify
+
+# HTTP Client and API Integration
+httpx
+aiohttp
+requests
+websockets
+
+# Environment and Configuration
+python-dotenv
+
+
+# Async Programming
+asyncio
+
+
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+pytest-mock
+

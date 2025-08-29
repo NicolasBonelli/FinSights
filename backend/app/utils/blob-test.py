@@ -46,10 +46,11 @@ print("Archivo subido correctamente ✅")
 
 blob_client = blob_service_client.get_blob_client(container="finsight-container", blob="As festas juninas.pdf")
 
-import os
+#import os
 
-os.makedirs("./files", exist_ok=True)
-with open("./files/archivo_descargado.pdf", "wb") as file:
+#os.makedirs("./files", exist_ok=True)
+#with open("./files/archivo_descargado.pdf", "wb") as file:
+with open("archivo_descargado.pdf", "wb") as file:
     download_stream = blob_client.download_blob()
     file.write(download_stream.readall())
 

@@ -1,0 +1,3 @@
+"""
+FinSights FastAPI Application
+"""

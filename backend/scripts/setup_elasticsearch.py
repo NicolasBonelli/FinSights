@@ -6,7 +6,7 @@ Script para configurar Elasticsearch en Docker
 import asyncio
 import logging
 from elasticsearch import AsyncElasticsearch
-from app.core.config import get_settings
+from backend.app.core.config import get_settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,8 +20,6 @@ async def setup_elasticsearch():
     # Conectar a Elasticsearch
     es_client = AsyncElasticsearch(
         [settings.elasticsearch_url],
-        verify_certs=False,
-        ssl_show_warn=False
     )
     
     try:

@@ -117,6 +117,10 @@ class AzureBlobService:
             logger.error(f"Error deleting file: {e}")
             return False
     
+    def build_blob_url(self, blob_name: str) -> str:
+        """Build blob URL from blob name"""
+        return f"https://{self.settings.azure_storage_account}.blob.core.windows.net/{self.settings.azure_container_name}/{blob_name}"
+    
     async def get_file_metadata(self, blob_url: str) -> Optional[dict]:
         """Get file metadata from Azure Blob Storage"""
         try:

@@ -18,17 +18,12 @@ async def get_elasticsearch_client() -> AsyncElasticsearch:
     if elasticsearch_client is None:
         settings = get_settings()
         
-        if settings.elasticsearch_username and settings.elasticsearch_password:
-            elasticsearch_client = AsyncElasticsearch(
-                [settings.elasticsearch_url],
-                basic_auth=(settings.elasticsearch_username, settings.elasticsearch_password),
-                verify_certs=False
-            )
-        else:
-            elasticsearch_client = AsyncElasticsearch(
-                [settings.elasticsearch_url],
-                verify_certs=False
-            )
+        # Para Docker, no necesitamos autenticación por defecto
+        elasticsearch_client = AsyncElasticsearch(
+            [settings.elasticsearch_url],
+            verify_certs=False,
+            ssl_show_warn=False
+        )
     
     return elasticsearch_client
 

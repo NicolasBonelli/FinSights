@@ -9,8 +9,6 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from app.core.config import get_settings
 from app.core.lifespan import startup_event, shutdown_event
 from app.api.v1.router import api_router
-from app.middleware.error_handler import add_exception_handlers
-from app.middleware.logging import LoggingMiddleware
 
 
 @asynccontextmanager
@@ -50,10 +48,7 @@ def create_application() -> FastAPI:
         allowed_hosts=settings.allowed_hosts
     )
     
-    app.add_middleware(LoggingMiddleware)
-    
-    # Add exception handlers
-    add_exception_handlers(app)
+
     
     # Include routers
     app.include_router(api_router, prefix="/api/v1")

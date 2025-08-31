@@ -4,7 +4,7 @@ Redis database connection and utilities
 import logging
 from typing import Optional
 import redis.asyncio as redis
-from app.core.config import get_settings
+from backend.app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
 

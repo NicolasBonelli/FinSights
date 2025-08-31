@@ -23,9 +23,9 @@ from docling.document_converter import DocumentConverter
 from docling.datamodel.base_models import DocumentStream
 
 # Importar servicios del backend
-from app.core.config import get_settings
-from app.core.azure_storage import azure_blob_service
-from app.core.elasticsearch_client import get_elasticsearch_client
+from backend.app.core.config import get_settings
+from backend.app.core.azure_storage import azure_blob_service
+from backend.app.core.elasticsearch_client import get_elasticsearch_client
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -62,15 +62,14 @@ class LlamaIndexWorker:
             
             # Crear BytesIO stream para Docling
             file_stream = BytesIO(content)
-            file_stream.name = f"{file_id}.pdf"  # Asignar nombre para que Docling reconozca el tipo
             
-            # Extraer texto usando Docling
-            doc_stream = DocumentStream.from_file(file_stream)
-            extracted_docs = self.doc_converter.convert(doc_stream)
-            
+            # Crear DocumentStream y convertir
+            source = DocumentStream(name=f"{file_id}.pdf", stream=file_stream)
+            conversion_result = self.doc_converter.convert(source)
+
             # Obtener texto extraído
-            if extracted_docs and len(extracted_docs) > 0:
-                text_content = extracted_docs[0].text
+            if conversion_result and conversion_result.document:
+                text_content = conversion_result.document.export_to_text()
                 logger.info(f"✅ Texto extraído con Docling: {len(text_content)} caracteres")
                 return text_content
             else:
@@ -85,6 +84,7 @@ class LlamaIndexWorker:
         try:
             # 1. Descargar archivo y extraer texto con Docling
             text_content = await self.download_and_extract_text(file_id)
+            logger.info(f"Text content length: {len(text_content)}")
             doc = Document(text=text_content, doc_id=doc_id)
             
             # 2. Crear chunks pequeños y grandes
@@ -93,10 +93,17 @@ class LlamaIndexWorker:
             
             small_nodes = small_chunker.get_nodes_from_documents([doc])
             parent_nodes = parent_chunker.get_nodes_from_documents([doc])
+            logger.info(f"Number of small nodes: {len(small_nodes)}")
+            logger.info(f"Number of parent nodes: {len(parent_nodes)}")
             
             # 3. Generar embeddings solo para chunks pequeños
-            small_texts = [node.text for node in small_nodes]
-            embeddings = self.embed_model.get_text_embedding_batch(small_texts)
+            if small_nodes:
+                small_texts = [node.text for node in small_nodes]
+                embeddings = self.embed_model.get_text_embedding_batch(small_texts)
+                logger.info(f"Number of embeddings generated: {len(embeddings)}")
+            else:
+                embeddings = []
+                logger.info("No small nodes to generate embeddings for.")
             
             # 4. Preparar datos para Elasticsearch
             es_client = await get_elasticsearch_client()
@@ -149,11 +156,11 @@ class LlamaIndexWorker:
                     doc_id=data["doc_id"],
                     company_id=data["company_id"]
                 )
-                message.ack()
+                await message.ack()
                 
             except Exception as e:
                 logger.error(f"Error procesando mensaje: {e}")
-                message.nack()
+                await message.nack()
     
     async def start_consuming(self):
         """Iniciar consumo de mensajes"""

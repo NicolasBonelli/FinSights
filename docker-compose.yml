@@ -11,7 +11,7 @@ services:
     ports:
       - "9200:9200"
     networks:
-      - elastic
+      - finsights_net
     volumes:
       - es_data:/usr/share/elasticsearch/data
 
@@ -25,10 +25,30 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      - elastic
+      - finsights_net
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - finsights_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - finsights_net
 
 networks:
-  elastic:
+  finsights_net:
     driver: bridge
 
 volumes:

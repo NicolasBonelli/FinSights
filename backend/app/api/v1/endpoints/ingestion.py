@@ -1,9 +1,12 @@
 """
 API endpoint for file ingestion.
 """
+import uuid
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
-from app.core.azure_storage import azure_blob_service
-from app.models.responses import IngestionResponse
+from backend.app.core.config import get_settings
+from backend.app.core.azure_storage import azure_blob_service
+from backend.app.core.rabbitmq import rabbitmq_client
+from backend.app.models.responses import IngestionResponse
 
 router = APIRouter()
 
@@ -11,7 +14,7 @@ router = APIRouter()
     "/upload",
     response_model=IngestionResponse,
     summary="Upload a file for analysis",
-    description="Uploads a PDF file to Azure Blob Storage for further processing.",
+    description="Uploads a PDF file to Azure Blob Storage and triggers the processing pipeline.",
 )
 async def upload_file(
     company_id: str,
@@ -21,7 +24,8 @@ async def upload_file(
     Handles the file upload process:
     1. Validates the file type.
     2. Uploads the file to Azure Blob Storage.
-    3. Returns the URL of the stored file.
+    3. Publishes a message to RabbitMQ to start the processing pipeline.
+    4. Returns the URL of the stored file and a document ID.
     """
     if file.content_type != "application/pdf":
         raise HTTPException(
@@ -31,22 +35,48 @@ async def upload_file(
 
     try:
         file_content = await file.read()
+        
+        # 1. Upload file to Azure Blob Storage
         blob_url = await azure_blob_service.upload_file(
             file_content=file_content,
             filename=file.filename,
             company_id=company_id,
             content_type=file.content_type,
         )
+        
         if not blob_url:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to upload file to Azure Blob Storage.",
             )
+
+        # 2. Extract file_id (blob_name) from URL
+        settings = get_settings()
+        file_id = blob_url.split(f"{settings.azure_container_name}/")[-1]
+        doc_id = str(uuid.uuid4())
+            
+        # 3. Publish message to RabbitMQ
+        message_body = {
+            "file_id": file_id, # This is the blob_name
+            "doc_id": doc_id,
+            "company_id": company_id,
+        }
         
+        await rabbitmq_client.publish_message(
+            queue_name="llamaindex_queue",
+            message_body=message_body,
+        )
+        
+        await rabbitmq_client.publish_message(
+            queue_name="langextract_queue",
+            message_body=message_body,
+        )
+
         return IngestionResponse(
-            message="File uploaded successfully",
+            message="File uploaded and processing started",
             file_url=blob_url,
             filename=file.filename,
+            doc_id=doc_id,
         )
     except Exception as e:
         raise HTTPException(

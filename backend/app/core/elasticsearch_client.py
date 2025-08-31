@@ -4,7 +4,7 @@ Elasticsearch client and utilities
 import logging
 from typing import Optional, Dict, List, Any
 from elasticsearch import AsyncElasticsearch
-from app.core.config import get_settings
+from backend.app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
 

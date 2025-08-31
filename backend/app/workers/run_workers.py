@@ -5,8 +5,8 @@ Configuración: 3 LlamaIndex workers + 3 LangExtract workers
 
 import asyncio
 import logging
-from llamaindex_worker import LlamaIndexWorker
-from langextract_worker import LangExtractWorker
+from backend.app.workers.llamaindex_worker import LlamaIndexWorker
+from backend.app.workers.langextract_worker import LangExtractWorker
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

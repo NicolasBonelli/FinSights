@@ -7,7 +7,7 @@ from azure.storage.blob.aio import BlobServiceClient
 from azure.core.exceptions import AzureError
 import uuid
 from datetime import datetime
-from app.core.config import get_settings
+from backend.app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
 

@@ -12,6 +12,7 @@ class IngestionResponse(BaseModel):
     message: str = Field(..., description="Response message")
     file_url: str = Field(..., description="URL of the uploaded file in Azure Blob Storage")
     filename: str = Field(..., description="Name of the uploaded file")
+    doc_id: str = Field(..., description="Unique ID for the document")
 
 class TaskStatus(str, Enum):
     """Task status enumeration"""

@@ -21,9 +21,9 @@ from docling.document_converter import DocumentConverter
 from docling.datamodel.base_models import DocumentStream
 
 # Importar servicios del backend
-from app.core.config import get_settings
-from app.core.azure_storage import azure_blob_service
-from app.core.elasticsearch_client import get_elasticsearch_client
+from backend.app.core.config import get_settings
+from backend.app.core.azure_storage import azure_blob_service
+from backend.app.core.elasticsearch_client import get_elasticsearch_client
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
@@ -35,6 +35,8 @@ class LangExtractWorker:
 
     def __init__(self):
         self.settings = get_settings()
+        if self.settings.gemini_api_key:
+            os.environ["LANGEXTRACT_API_KEY"] = self.settings.gemini_api_key
         self.connection = None
         self.channel = None
         self.doc_converter = DocumentConverter()
@@ -100,7 +102,7 @@ class LangExtractWorker:
             text_or_documents=text,
             prompt_description=self.prompt,
             examples=self.examples,
-            model_id="gemini-2.5-flash",   # Modelo oficial soportado por LangExtract
+            model_id="gemini-1.5-flash",   # Modelo oficial soportado por LangExtract
             extraction_passes=3,
             max_workers=10,
             max_char_buffer=1500
@@ -131,14 +133,13 @@ class LangExtractWorker:
 
             # Crear BytesIO stream para Docling
             file_stream = BytesIO(content)
-            file_stream.name = f"{file_id}.pdf"
 
-            # Extraer texto usando Docling
-            doc_stream = DocumentStream.from_file(file_stream)
-            extracted_docs = self.doc_converter.convert(doc_stream)
+            # Crear DocumentStream y convertir
+            source = DocumentStream(name=f"{file_id}.pdf", stream=file_stream)
+            conversion_result = self.doc_converter.convert(source)
 
-            if extracted_docs and len(extracted_docs) > 0:
-                text_content = extracted_docs[0].text
+            if conversion_result and conversion_result.document:
+                text_content = conversion_result.document.export_to_text()
                 logger.info(f"✅ Texto extraído con Docling: {len(text_content)} caracteres")
                 return text_content
             else:
@@ -185,10 +186,10 @@ class LangExtractWorker:
                     doc_id=data["doc_id"],
                     company_id=data["company_id"]
                 )
-                message.ack()
+                await message.ack()
             except Exception as e:
                 logger.error(f"Error procesando mensaje: {e}")
-                message.nack()
+                await message.nack()
 
     async def start_consuming(self):
         """Iniciar consumo de mensajes"""

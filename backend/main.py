@@ -6,19 +6,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from app.core.config import get_settings
-from app.core.lifespan import startup_event, shutdown_event
-from app.api.v1.router import api_router
+from backend.app.core.config import get_settings
+from backend.app.core.lifespan import lifespan
+from backend.app.api.v1.router import api_router
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Manage application lifespan events"""
-    # Startup
-    await startup_event()
-    yield
-    # Shutdown
-    await shutdown_event()
+
 
 
 def create_application() -> FastAPI:

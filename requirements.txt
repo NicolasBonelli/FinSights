@@ -35,7 +35,9 @@ tiktoken
 
 # Document Processing and RAG
 llama-index
+llama-index-core
 llama-index-embeddings-openai
+llama-index-embeddings-huggingface
 llama-index-vector-stores-elasticsearch
 llama-index-retrievers-bm25
 docling
@@ -47,6 +49,8 @@ transformers
 sentence-transformers
 beautifulsoup4
 markdownify
+spacy
+langextract
 
 # Frontend & UI
 streamlit
@@ -71,4 +75,8 @@ pytest
 pytest-asyncio
 pytest-cov
 pytest-mock
+
+# Workers Dependencies
+# Note: spacy and langextract are already included above
+# llama-index-core and llama-index-embeddings-huggingface are already included above
 

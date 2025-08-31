@@ -11,7 +11,6 @@ from app.core.lifespan import startup_event, shutdown_event
 from app.api.v1.router import api_router
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan events"""
@@ -49,10 +48,7 @@ def create_application() -> FastAPI:
         allowed_hosts=settings.allowed_hosts
     )
     
-    app.add_middleware(LoggingMiddleware)
-    
-    # Add exception handlers
-    add_exception_handlers(app)
+
     
     # Include routers
     app.include_router(api_router, prefix="/api/v1")

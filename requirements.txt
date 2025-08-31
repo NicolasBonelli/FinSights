@@ -52,6 +52,9 @@ markdownify
 spacy
 langextract
 
+# Frontend & UI
+streamlit
+
 # HTTP Client and API Integration
 httpx
 aiohttp

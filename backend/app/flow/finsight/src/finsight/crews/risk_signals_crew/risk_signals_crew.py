@@ -156,7 +156,7 @@ class RiskSignalsCrew:
                 "Implement compliance monitoring for regulatory changes",
                 "Develop contingency plans for liquidity management"
             ],
-            overall_risk_level=overall_risk_level
+            risks=[]
         )
 
 

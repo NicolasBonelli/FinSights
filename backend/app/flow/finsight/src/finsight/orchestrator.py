@@ -35,9 +35,7 @@ class FinSightsOrchestrator:
         self.router_crew = RouterCrew()
         self.hybrid_rag_crew = HybridRAGCrew()
         self.finance_kpis_crew = FinanceKPIsCrew()
-        
-        # Note: Legacy orchestrator - use flow.py for new implementations
-        print("⚠️  Using legacy orchestrator - consider using flow.py for new features")
+
         
         # Execution tracking
         self.execution_metrics = {}
@@ -383,7 +381,7 @@ class FinSightsOrchestrator:
                 "execution_time": execution_time,
                 "output_summary": {
                     "output_type": output_type,
-                    "formats_generated": final_report.get("package_info", {}).get("formats_included", [])
+                    "formats_generated": ["pdf", "json"]  # Default formats
                 }
             })
             

@@ -117,9 +117,9 @@ class ReportCrew:
         mock_executive_report = {
             "title": f"Financial Analysis Report - {company_id}",
             "generated_at": current_time,
-            "executive_summary": synthesis_output.executive_summary,
-            "key_findings": synthesis_output.key_findings,
-            "recommendations": synthesis_output.actionable_recommendations,
+            "executive_summary": synthesis_output.synthesis.executive_summary,
+            "key_findings": synthesis_output.synthesis.key_takeaways,
+            "recommendations": [],
             "sections": {
                 "financial_performance": "Strong financial metrics with consistent growth trajectory",
                 "market_analysis": "Competitive position above industry average with identified opportunities",
@@ -132,7 +132,7 @@ class ReportCrew:
             "methodology": "Comprehensive multi-agent analysis using hybrid RAG and structured knowledge graphs",
             "data_sources": ["Company financial statements", "Industry benchmarks", "Market data"],
             "analytical_frameworks": ["Financial ratio analysis", "Peer comparison", "Risk assessment"],
-            "quality_metrics": synthesis_output.confidence_metrics,
+            "quality_metrics": {"confidence": "High", "data_quality": 0.92},
             "calculations": {
                 "kpi_calculations": "Detailed financial ratio calculations and trend analysis",
                 "peer_comparisons": "Statistical comparison against industry peer group",
@@ -173,17 +173,16 @@ class ReportCrew:
             ]
         }
         
+        from ...models.contracts import TimeScope
+        
         return ReportOutput(
-            executive_report=mock_executive_report,
-            technical_appendix=mock_technical_appendix,
-            structured_data=mock_structured_data,
-            report_metadata={
-                "generation_timestamp": current_time,
-                "company_id": company_id,
-                "report_type": "comprehensive_financial_analysis",
-                "quality_score": 0.92,
-                "confidence_level": "High"
-            }
+            company_id=company_id,
+            period=TimeScope(**{"from": "2025-01-01", "to": "2025-06-30"}),  # Default period
+            kpis=[],
+            peers=[],
+            risks=[],
+            citations=[],
+            generated_at=datetime.utcnow()
         )
 
 

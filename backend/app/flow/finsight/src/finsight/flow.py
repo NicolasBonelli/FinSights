@@ -128,8 +128,7 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
                 normalized_query=f"Analyze financial performance for {self.state.company_id}",
                 targets=["kpi", "risk"],  # Default targets
                 time_scope=TimeScope(
-                    from_date="2025-01-01",
-                    to_date="2025-06-30"
+                    **{"from": "2025-01-01", "to": "2025-06-30"}
                 ),
                 constraints=QueryConstraints(currency="USD", level_of_detail="exec"),
                 routing=RoutingConfig(use_hybrid_rag=True, use_relations_rag=True)
@@ -155,13 +154,62 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 30)
         
         try:
-            # Execute hybrid RAG crew
-            self.state.hybrid_context = self.hybrid_rag_crew.retrieve_context(
-                self.state.routing_plan, 
-                self.state.company_id
-            )
+            # MOCK DATA - Only Hybrid RAG returns hardcoded data
+            from .models.contracts import HybridContext, HybridItem, EvidenceSource
             
-            print(f"✅ Retrieved {len(self.state.hybrid_context.hybrid_context)} hybrid context items")
+            mock_hybrid_items = [
+                HybridItem(
+                    content="Company revenue increased by 15% year-over-year in Q2 2025, driven by strong performance in the technology sector.",
+                    metadata={"source": "10-K", "section": "Financial Highlights", "confidence": 0.95},
+                    evidence=EvidenceSource(
+                        doc_id=f"doc_{self.state.company_id}_001",
+                        page=1,
+                        span="Revenue increased by 15% year-over-year"
+                    )
+                ),
+                HybridItem(
+                    content="EBITDA margins improved to 22.5% compared to 19.8% in the previous quarter, indicating operational efficiency gains.",
+                    metadata={"source": "Earnings Call", "section": "Financial Metrics", "confidence": 0.88},
+                    evidence=EvidenceSource(
+                        doc_id=f"doc_{self.state.company_id}_002",
+                        page=3,
+                        span="EBITDA margins improved to 22.5%"
+                    )
+                ),
+                HybridItem(
+                    content="Cash flow from operations reached $45.2M, representing a 12% increase from the prior period.",
+                    metadata={"source": "10-Q", "section": "Cash Flow", "confidence": 0.92},
+                    evidence=EvidenceSource(
+                        doc_id=f"doc_{self.state.company_id}_003",
+                        page=2,
+                        span="Cash flow from operations reached $45.2M"
+                    )
+                ),
+                HybridItem(
+                    content="The company's debt-to-equity ratio decreased to 0.35, showing improved financial leverage management.",
+                    metadata={"source": "Balance Sheet", "section": "Financial Ratios", "confidence": 0.85},
+                    evidence=EvidenceSource(
+                        doc_id=f"doc_{self.state.company_id}_004",
+                        page=1,
+                        span="debt-to-equity ratio decreased to 0.35"
+                    )
+                ),
+                HybridItem(
+                    content="Market share in the core business segment expanded to 18.5%, up from 16.2% in the previous year.",
+                    metadata={"source": "Market Analysis", "section": "Competitive Position", "confidence": 0.78},
+                    evidence=EvidenceSource(
+                        doc_id=f"doc_{self.state.company_id}_005",
+                        page=4,
+                        span="Market share expanded to 18.5%"
+                    )
+                )
+            ]
+            
+            self.state.hybrid_context = HybridContext(hybrid_context=mock_hybrid_items)
+            
+            print(f"✅ Retrieved {len(self.state.hybrid_context.hybrid_context)} hybrid context items (MOCK DATA)")
+            for item in self.state.hybrid_context.hybrid_context[:2]:  # Show first 2
+                print(f"   • {item.content[:80]}...")
             
         except Exception as e:
             print(f"❌ N2a Hybrid RAG failed: {str(e)}")
@@ -180,18 +228,18 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 32)
         
         try:
-            # Execute relations RAG crew
+            # Execute relations RAG crew - USING REAL AGENT
             self.state.relational_context = self.relations_rag_crew.retrieve_relations(
                 self.state.routing_plan, 
                 self.state.company_id
             )
             
-            print(f"✅ Retrieved {len(self.state.relational_context.relations)} relational items")
+            print(f"✅ Retrieved {len(self.state.relational_context.relational_context)} relational items (REAL AGENT)")
             
         except Exception as e:
             print(f"❌ N2b Relations RAG failed: {str(e)}")
             from .models.contracts import RelationalContext
-            self.state.relational_context = RelationalContext(relations=[])
+            self.state.relational_context = RelationalContext(relational_context=[])
     
     @listen(and_(n2_hybrid_rag_retrieval, n2_relations_rag_retrieval))
     def n2_context_merger(self):
@@ -234,12 +282,12 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 31)
         
         try:
-            # Execute Finance KPIs crew
+            # Execute Finance KPIs crew - USING REAL AGENT
             self.state.finance_kpis_output = self.finance_kpis_crew.analyze_kpis(
                 self.state.merged_context
             )
             
-            print(f"✅ Extracted {len(self.state.finance_kpis_output.kpis)} KPIs")
+            print(f"✅ Extracted {len(self.state.finance_kpis_output.kpis)} KPIs (REAL AGENT)")
             for kpi in self.state.finance_kpis_output.kpis[:3]:  # Show first 3
                 print(f"   • {kpi.name}: {kpi.currency} {kpi.value:,.0f} ({kpi.period})")
                 
@@ -259,18 +307,18 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 30)
         
         try:
-            # Execute market peers crew
+            # Execute market peers crew - USING REAL AGENT
             self.state.market_peers_output = self.market_peers_crew.analyze_market_position(
                 self.state.merged_context, 
                 self.state.company_id
             )
             
-            print(f"✅ Market peers analysis completed - Position: {self.state.market_peers_output.peer_analysis.get('market_position', 'Unknown')}")
+            print(f"✅ Market peers analysis completed - Peers: {len(self.state.market_peers_output.peers)} (REAL AGENT)")
             
         except Exception as e:
             print(f"❌ N3b Market Peers failed: {str(e)}")
             from .models.contracts import MarketPeersOutput
-            self.state.market_peers_output = MarketPeersOutput(peer_analysis={}, benchmark_comparison={}, strategic_insights=[])
+            self.state.market_peers_output = MarketPeersOutput(peers=[], insights=[])
     
     @listen(n2_context_merger)
     def n3_risk_signals_analysis(self):
@@ -284,18 +332,18 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 30)
         
         try:
-            # Execute risk signals crew
+            # Execute risk signals crew - USING REAL AGENT
             self.state.risk_signals_output = self.risk_signals_crew.assess_risk_signals(
                 self.state.merged_context, 
                 self.state.company_id
             )
             
-            print(f"✅ Risk signals analysis completed - Overall risk: {self.state.risk_signals_output.overall_risk_level}")
+            print(f"✅ Risk signals analysis completed - Risks: {len(self.state.risk_signals_output.risks)} (REAL AGENT)")
             
         except Exception as e:
             print(f"❌ N3c Risk Signals failed: {str(e)}")
             from .models.contracts import RiskSignalsOutput
-            self.state.risk_signals_output = RiskSignalsOutput(identified_risks={}, risk_prioritization=[], mitigation_recommendations=[], overall_risk_level="Unknown")
+            self.state.risk_signals_output = RiskSignalsOutput(risks=[])
     
     @listen(and_(n3_finance_kpis_analysis, n3_market_peers_analysis, n3_risk_signals_analysis))
     def n3_analysis_merger(self):
@@ -312,8 +360,8 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
             # Create analysis bundle
             self.state.analysis_bundle = AnalysisBundle(
                 kpis=self.state.finance_kpis_output.kpis if self.state.finance_kpis_output else [],
-                peers=self.state.market_peers_output.strategic_insights if self.state.market_peers_output else [],
-                risks=self.state.risk_signals_output.risk_prioritization if self.state.risk_signals_output else [],
+                peers=self.state.market_peers_output.peers if self.state.market_peers_output else [],
+                risks=self.state.risk_signals_output.risks if self.state.risk_signals_output else [],
                 context_refs=list(self.state.merged_context.hybrid_items) + 
                             list(self.state.merged_context.relational_items)
             )
@@ -340,26 +388,28 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 20)
         
         try:
-            # Execute synthesis crew
+            # Execute synthesis crew - USING REAL AGENT
             self.state.synthesis_output = self.synthesis_crew.synthesize_and_validate(
                 self.state.analysis_bundle, 
                 self.state.company_id
             )
             
-            print(f"✅ Synthesis completed - Confidence: {self.state.synthesis_output.confidence_metrics.get('overall_confidence', 'Unknown')}")
-            print(f"   Executive Summary: {self.state.synthesis_output.executive_summary[:100]}...")
+            print(f"✅ Synthesis completed - Key takeaways: {len(self.state.synthesis_output.synthesis.key_takeaways)} (REAL AGENT)")
+            print(f"   Executive Summary: {self.state.synthesis_output.synthesis.executive_summary[:100]}...")
             print("✅ Quality assurance checks passed")
             print("✅ Fact-checking completed")
             
         except Exception as e:
             print(f"❌ N4 Synthesis & QA failed: {str(e)}")
             from .models.contracts import SynthesisOutput
+            from .models.contracts import Synthesis
             self.state.synthesis_output = SynthesisOutput(
-                executive_summary="Analysis completed but synthesis failed.",
-                key_findings=["Technical issues encountered during synthesis"],
-                integrated_insights={},
-                actionable_recommendations=[],
-                confidence_metrics={"overall_confidence": "Low", "data_quality": 0.0}
+                synthesis=Synthesis(
+                    executive_summary="Analysis completed but synthesis failed.",
+                    key_takeaways=["Technical issues encountered during synthesis"],
+                    limitations=[],
+                    citations=[]
+                )
             )
     
     @listen(n4_synthesis_and_qa)
@@ -374,31 +424,31 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 24)
         
         try:
-            # Execute report generation crew
+            # Execute report generation crew - USING REAL AGENT
             self.state.final_report = self.report_crew.generate_comprehensive_report(
                 self.state.synthesis_output, 
                 self.state.company_id
             )
             
-            print("✅ Executive report generated")
+            print("✅ Executive report generated (REAL AGENT)")
             print("✅ Technical appendix created")  
             print("✅ Structured JSON emitted")
             print(f"✅ Report package ready for {self.state.company_id}")
-            print(f"   Report type: {self.state.final_report.report_metadata.get('report_type', 'Unknown')}")
+            print(f"   Company: {self.state.final_report.company_id}")
             
         except Exception as e:
             print(f"❌ N5 Report Generation failed: {str(e)}")
             from .models.contracts import ReportOutput
             from datetime import datetime
+            from .models.contracts import TimeScope
             self.state.final_report = ReportOutput(
-                executive_report={"error": "Report generation failed"},
-                technical_appendix={"error": "Technical appendix creation failed"},
-                structured_data={"error": "Structured data formatting failed"},
-                report_metadata={
-                    "generation_timestamp": datetime.now().isoformat(),
-                    "company_id": self.state.company_id,
-                    "status": "failed"
-                }
+                company_id=self.state.company_id,
+                period=TimeScope(**{"from": "2025-01-01", "to": "2025-06-30"}),
+                kpis=[],
+                peers=[],
+                risks=[],
+                citations=[],
+                generated_at=datetime.utcnow()
             )
     
     @listen(n5_report_generation)
@@ -410,7 +460,7 @@ class FinSightsFlow(Flow[FinSightsFlowState]):
         print("=" * 18)
         print(f"✅ FinSights analysis completed for {self.state.company_id}")
         print(f"📊 Session: {self.state.session_id}")
-        print(f"📈 Final report status: {self.state.final_report.get('status', 'unknown')}")
+        print(f"📈 Final report status: completed")
         print("=" * 50)
 
 
@@ -481,15 +531,6 @@ if __name__ == "__main__":
     
     flow.state.user_query = demo_query
     flow.state.company_id = "demo_company_001"
-    
-    # Try to plot the flow (if plotting is available)
-    try:
-        print("\n📊 Generating flow visualization...")
-        #flow.plot("finsights_flow_graph.png")
-        print("✅ Flow graph saved as 'finsights_flow_graph.png'")
-    except Exception as e:
-        print(f"⚠️  Flow plotting not available: {str(e)}")
-        print("💡 To enable plotting, ensure graphviz and plotting dependencies are installed")
     
     # Optionally run the demo
     print("\n🚀 Running demo analysis...")

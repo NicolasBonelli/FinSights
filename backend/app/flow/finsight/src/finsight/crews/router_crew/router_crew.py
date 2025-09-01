@@ -127,8 +127,7 @@ class RouterCrew:
             date_range = opts['date_range']
             if isinstance(date_range, dict) and 'from' in date_range and 'to' in date_range:
                 return TimeScope(
-                    from_date=date_range['from'],
-                    to_date=date_range['to']
+                    **{"from": date_range['from'], "to": date_range['to']}
                 )
         
         # Default to last quarter
@@ -139,8 +138,7 @@ class RouterCrew:
         quarter_end = quarter_start + timedelta(days=90)
         
         return TimeScope(
-            from_date=quarter_start.strftime('%Y-%m-%d'),
-            to_date=min(quarter_end, today).strftime('%Y-%m-%d')
+            **{"from": quarter_start.strftime('%Y-%m-%d'), "to": min(quarter_end, today).strftime('%Y-%m-%d')}
         )
     
     def _refine_scope(self, user_query: UserQuery, targets: list, policy_result: Dict[str, Any]) -> RoutingPlan:

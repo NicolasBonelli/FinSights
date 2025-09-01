@@ -68,28 +68,34 @@ class RelationsRAGCrew:
             RelationalContext with relations and entity connections
         """
         # Mock implementation - in production would use actual LangExtract + Elasticsearch
+        from ...models.contracts import EvidenceSource
+        
         mock_relations = [
             RelationItem(
-                subject="Revenue",
-                predicate="affects",
-                object="EBITDA",
-                confidence=0.95,
-                evidence_span="Revenue growth directly impacts EBITDA margins",
-                doc_id=f"doc_{company_id}_003",
-                page=2
+                entity_class="Metric",
+                entity_text="Revenue",
+                attributes={"type": "financial_metric", "relationship": "affects", "target": "EBITDA"},
+                evidence=EvidenceSource(
+                    doc_id=f"doc_{company_id}_003",
+                    page=2,
+                    span="Revenue growth directly impacts EBITDA margins"
+                ),
+                confidence=0.95
             ),
             RelationItem(
-                subject="Market Share",
-                predicate="correlates_with", 
-                object="Competitive Position",
-                confidence=0.89,
-                evidence_span="Market share indicates competitive positioning strength",
-                doc_id=f"doc_{company_id}_004",
-                page=5
+                entity_class="Metric",
+                entity_text="Market Share",
+                attributes={"type": "market_metric", "relationship": "correlates_with", "target": "Competitive Position"},
+                evidence=EvidenceSource(
+                    doc_id=f"doc_{company_id}_004",
+                    page=5,
+                    span="Market share indicates competitive positioning strength"
+                ),
+                confidence=0.89
             )
         ]
         
-        return RelationalContext(relations=mock_relations)
+        return RelationalContext(relational_context=mock_relations)
 
 
 def create_relations_rag_crew() -> RelationsRAGCrew:

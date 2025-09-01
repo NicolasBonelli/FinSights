@@ -135,16 +135,15 @@ class SynthesisCrew:
             "analytical_consistency": "Good - no major conflicts detected between analyses"
         }
         
+        from ...models.contracts import Synthesis
+        
         return SynthesisOutput(
-            executive_summary=mock_synthesis["executive_summary"],
-            key_findings=mock_synthesis["key_findings"],
-            integrated_insights=mock_synthesis["integrated_insights"],
-            actionable_recommendations=mock_synthesis["actionable_recommendations"],
-            confidence_metrics={
-                "overall_confidence": mock_synthesis["confidence_level"],
-                "data_quality": mock_synthesis["data_quality_score"],
-                "analytical_consistency": mock_synthesis["analytical_consistency"]
-            }
+            synthesis=Synthesis(
+                executive_summary=mock_synthesis["executive_summary"],
+                key_takeaways=mock_synthesis["key_findings"],
+                limitations=[],
+                citations=[]
+            )
         )
 
 

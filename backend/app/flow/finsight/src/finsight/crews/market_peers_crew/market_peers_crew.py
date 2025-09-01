@@ -137,9 +137,8 @@ class MarketPeersCrew:
         }
         
         return MarketPeersOutput(
-            peer_analysis=mock_analysis,
-            benchmark_comparison=mock_analysis["key_metrics_vs_peers"],
-            strategic_insights=mock_analysis["strategic_recommendations"]
+            peers=[],
+            insights=mock_analysis["strategic_recommendations"]
         )
 
 

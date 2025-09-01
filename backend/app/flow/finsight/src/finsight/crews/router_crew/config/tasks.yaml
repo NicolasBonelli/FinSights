@@ -1,0 +1,41 @@
+classify_intent_task:
+  description: >
+    Analyze the user query to determine the appropriate analysis targets.
+    Classify whether the request is for:
+    - KPI analysis ('kpi')
+    - Market peer comparison ('peers') 
+    - Risk assessment ('risk')
+    - Comprehensive report (multiple targets)
+    
+    Input: user_query dictionary with query text and options
+    Output: Classification results with targets list and confidence
+  expected_output: >
+    Dictionary with 'targets' list, 'confidence' score, and 'reasoning'
+
+validate_policy_task:
+  description: >
+    Validate the user request against security and business policies.
+    Check:
+    - Company access permissions
+    - Date range limitations  
+    - Confidentiality requirements
+    - Data usage policies
+    
+    Input: user_query dictionary
+    Output: Policy validation results
+  expected_output: >
+    Dictionary with 'valid' boolean, 'violations' list, and 'restrictions'
+
+refine_scope_task:
+  description: >
+    Refine and normalize the query scope with proper context.
+    Add missing parameters like:
+    - Time periods when not specified
+    - Currency preferences
+    - Level of detail
+    - Routing configuration
+    
+    Input: user_query dictionary, targets from classification, policy validation results
+    Output: Complete refined scope
+  expected_output: >
+    RoutingPlan object with normalized query and complete scope parameters

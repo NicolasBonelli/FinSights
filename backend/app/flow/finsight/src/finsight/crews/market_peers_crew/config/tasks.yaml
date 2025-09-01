@@ -1,0 +1,33 @@
+peer_identification_task:
+  description: >
+    Identify relevant market peers and competitors for comparative analysis.
+    Research companies in the same industry, similar size, and comparable business models.
+    Compile a list of appropriate peer companies with rationale for selection.
+    
+    Input: MergedContext with company information and industry data
+    Output: List of identified peer companies with selection criteria
+  expected_output: >
+    Structured list of peer companies with justification for inclusion
+
+benchmark_research_task:
+  description: >
+    Research industry benchmarks and performance standards for the identified peer group.
+    Gather financial ratios, performance metrics, and industry averages from reliable sources.
+    Compile comprehensive benchmark data for comparative analysis.
+    
+    Input: List of peer companies and industry context
+    Output: Comprehensive benchmark dataset with industry standards
+  expected_output: >
+    Detailed benchmark data including industry ratios and performance standards
+
+competitive_analysis_task:
+  description: >
+    Perform comprehensive peer comparison analysis and generate strategic insights.
+    Compare company performance against peers across key financial metrics.
+    Identify competitive strengths, weaknesses, and market positioning.
+    Generate actionable recommendations based on peer analysis.
+    
+    Input: Company financial data and benchmark dataset
+    Output: Comprehensive peer comparison analysis with strategic insights
+  expected_output: >
+    MarketPeersOutput with peer comparison analysis and strategic recommendations

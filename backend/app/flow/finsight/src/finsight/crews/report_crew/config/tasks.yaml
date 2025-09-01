@@ -1,0 +1,35 @@
+executive_report_generation_task:
+  description: >
+    Generate comprehensive executive report from synthesized analytical insights.
+    Create a polished, executive-level document that communicates key findings, strategic
+    recommendations, and actionable insights in a clear, business-focused narrative.
+    Structure the report for maximum impact with executive summary, key findings, and recommendations.
+    
+    Input: SynthesisOutput with integrated analytical conclusions
+    Output: Professional executive report in structured format
+  expected_output: >
+    Comprehensive executive report with clear narrative and strategic recommendations
+
+technical_appendix_creation_task:
+  description: >
+    Create detailed technical appendix with methodology, calculations, and supporting evidence.
+    Document analytical approaches, present detailed calculations, organize citations and sources,
+    and provide full traceability for all conclusions. Include data quality metrics and
+    methodology explanations for technical reviewers.
+    
+    Input: All analytical outputs and methodological information
+    Output: Comprehensive technical appendix with full documentation
+  expected_output: >
+    Detailed technical appendix with methodology and supporting evidence
+
+structured_output_formatting_task:
+  description: >
+    Format all analytical outputs into structured JSON schemas and machine-readable formats.
+    Create well-organized data structures that enable integration with other systems and
+    automated processing. Ensure schema validation and data consistency while maintaining
+    analytical richness and traceability.
+    
+    Input: Executive report and technical documentation
+    Output: Complete structured data package with JSON schemas
+  expected_output: >
+    ReportOutput with structured executive report, technical appendix, and machine-readable data

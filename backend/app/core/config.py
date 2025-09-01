@@ -49,14 +49,32 @@ class Settings(BaseSettings):
     celery_broker_url: str = Field(..., description="Celery broker URL")
     celery_result_backend: str = Field(..., description="Celery result backend URL")
     
-    # CrewAI / LLM
-    openai_api_key: Optional[str] = None
+    # Azure OpenAI
+    openai_api_key: str = Field(..., description="Azure OpenAI API Key")
+    azure_gpt4_endpoint: str = Field(..., description="Azure GPT-4 endpoint URL")
+    azure_gpt4o_endpoint: str = Field(..., description="Azure GPT-4o endpoint URL")
+    azure_gpt4o_mini_endpoint: str = Field(..., description="Azure GPT-4o-mini endpoint URL")
+    azure_gpt35_turbo_endpoint: str = Field(..., description="Azure GPT-3.5-turbo endpoint URL")
+    azure_openai_api_version: str = Field(default="2024-12-01-preview", description="Azure OpenAI API version")
+    
+    # CrewAI Configuration
+    crewai_max_parallel: int = Field(default=3, description="Maximum parallel agents in CrewAI")
+    context_top_k: int = Field(default=8, description="Top K context documents for RAG")
+    context_parent_expansion: int = Field(default=2, description="Parent expansion for context")
+    relations_confidence_min: float = Field(default=0.6, description="Minimum confidence for relations")
+    analytics_timeout_sec: int = Field(default=45, description="Analytics timeout in seconds")
+    synthesis_timeout_sec: int = Field(default=30, description="Synthesis timeout in seconds")
+    report_renderer: str = Field(default="pdf", description="Report renderer format")
+    strict_citation: bool = Field(default=True, description="Enable strict citation mode")
+    
+    # Legacy LLM settings (kept for backward compatibility)
     anthropic_api_key: Optional[str] = None
     gemini_api_key: Optional[str] = None
+
     azure_openai_api_key: Optional[str] = None
     azure_openai_endpoint: Optional[str] = None
     azure_openai_api_version: Optional[str] = None
-    default_llm_provider: str = Field(default="openai", description="Default LLM provider")
+    default_llm_provider: str = Field(default="azure_openai", description="Default LLM provider")
     
     # File processing
     max_file_size_mb: int = Field(default=50, description="Maximum file size in MB")
@@ -92,7 +110,12 @@ class Settings(BaseSettings):
             'azure_storage_account',
             'azure_storage_key',
             'celery_broker_url',
-            'celery_result_backend'
+            'celery_result_backend',
+            'openai_api_key',
+            'azure_gpt4_endpoint',
+            'azure_gpt4o_endpoint',
+            'azure_gpt4o_mini_endpoint',
+            'azure_gpt35_turbo_endpoint'
         ]
         
         missing_fields = []

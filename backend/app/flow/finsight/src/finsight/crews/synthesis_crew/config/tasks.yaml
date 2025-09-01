@@ -1,0 +1,33 @@
+synthesis_integration_task:
+  description: >
+    Integrate and synthesize insights from all analytical crews into a coherent narrative.
+    Combine findings from Finance KPIs, Market Peers, and Risk Signals analysis to create
+    a comprehensive view of the company's financial situation. Identify key themes,
+    patterns, and relationships between different analytical perspectives.
+    
+    Input: AnalysisBundle with outputs from all analytical crews
+    Output: Integrated synthesis with key themes and conclusions
+  expected_output: >
+    Comprehensive synthesis document with integrated insights and key findings
+
+quality_assurance_task:
+  description: >
+    Perform thorough quality assurance and fact-checking on all analytical outputs.
+    Verify accuracy of financial calculations, data consistency, and methodological soundness.
+    Cross-check findings against source data and identify any potential errors or inconsistencies.
+    
+    Input: Synthesis document and underlying analytical outputs
+    Output: Quality-assured analysis with verified accuracy
+  expected_output: >
+    Quality assurance report confirming analytical accuracy and identifying any issues
+
+conflict_resolution_task:
+  description: >
+    Identify and resolve any conflicts or contradictions between different analytical perspectives.
+    When different crews reach conflicting conclusions, investigate underlying causes and
+    provide balanced resolution. Create nuanced conclusions that acknowledge complexity.
+    
+    Input: Quality-assured analysis with potential conflicts identified
+    Output: Final synthesis with conflicts resolved and balanced conclusions
+  expected_output: >
+    SynthesisOutput with resolved conflicts and final integrated conclusions

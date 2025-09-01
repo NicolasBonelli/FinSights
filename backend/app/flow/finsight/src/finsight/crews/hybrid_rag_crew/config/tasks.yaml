@@ -1,0 +1,12 @@
+hybrid_retrieval_task:
+  description: >
+    Retrieve and contextualize relevant financial information using hybrid search.
+    Combine BM25 keyword search with vector similarity search to find the most relevant
+    document chunks for the given query and time scope. Expand context by retrieving
+    parent chunks when needed, ensure proper citations with document IDs, page numbers,
+    and evidence spans. Remove duplicates and sort by relevance.
+    
+    Input: RoutingPlan with normalized query and constraints
+    Output: HybridContext with comprehensive financial information
+  expected_output: >
+    HybridContext object containing contextualized financial information with proper citations

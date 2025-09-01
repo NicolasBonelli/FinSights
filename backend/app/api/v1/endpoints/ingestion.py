@@ -1,14 +1,22 @@
 """
 API endpoint for file ingestion.
 """
+
 import uuid
 from fastapi import APIRouter, UploadFile, File, HTTPException, status
 from backend.app.core.config import get_settings
 from backend.app.core.azure_storage import azure_blob_service
 from backend.app.core.rabbitmq import rabbitmq_client
 from backend.app.models.responses import IngestionResponse
+import hashlib
+from backend.app.core.redis_client import get_redis_client
+
+
 
 router = APIRouter()
+settings = get_settings()
+
+
 
 @router.post(
     "/upload",
@@ -35,8 +43,18 @@ async def upload_file(
 
     try:
         file_content = await file.read()
-        
-        # 1. Upload file to Azure Blob Storage
+        # 1. Check if file has already been processed
+        redis = await get_redis_client()
+        file_hash = hashlib.sha256(file_content).hexdigest()
+        redis_key = f"processed:{company_id}:{file_hash}"
+        if await redis.exists(redis_key):
+            raise HTTPException(
+                status_code=409,
+                detail="This file has already been processed recently."
+            )
+        # 2. Upload redis key TTL (estimated 24h)
+        await redis.set(redis_key, "1", ex=60*60*24)
+        # 3. Extract file_id (blob_name) from URL
         blob_url = await azure_blob_service.upload_file(
             file_content=file_content,
             filename=file.filename,
@@ -51,7 +69,7 @@ async def upload_file(
             )
 
         # 2. Extract file_id (blob_name) from URL
-        settings = get_settings()
+        
         file_id = blob_url.split(f"{settings.azure_container_name}/")[-1]
         doc_id = str(uuid.uuid4())
             

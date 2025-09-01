@@ -88,8 +88,8 @@ class LlamaIndexWorker:
             doc = Document(text=text_content, doc_id=doc_id)
             
             # 2. Crear chunks pequeños y grandes
-            small_chunker = SentenceSplitter(chunk_size=300, chunk_overlap=20)
-            parent_chunker = SentenceSplitter(chunk_size=1500, chunk_overlap=50)
+            small_chunker = SentenceSplitter(chunk_size=250, chunk_overlap=20)
+            parent_chunker = SentenceSplitter(chunk_size=750, chunk_overlap=50)
             
             small_nodes = small_chunker.get_nodes_from_documents([doc])
             parent_nodes = parent_chunker.get_nodes_from_documents([doc])
@@ -156,11 +156,11 @@ class LlamaIndexWorker:
                     doc_id=data["doc_id"],
                     company_id=data["company_id"]
                 )
-                await message.ack()
-                
             except Exception as e:
                 logger.error(f"Error procesando mensaje: {e}")
-                await message.nack()
+                # Relanzamos la excepción para que el contexto message.process()
+                # la capture y haga el nack (descartar) automáticamente.
+                raise
     
     async def start_consuming(self):
         """Iniciar consumo de mensajes"""

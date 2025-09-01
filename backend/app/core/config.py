@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     gemini_api_key: Optional[str] = None
+    azure_openai_api_key: Optional[str] = None
+    azure_openai_endpoint: Optional[str] = None
+    azure_openai_api_version: Optional[str] = None
     default_llm_provider: str = Field(default="openai", description="Default LLM provider")
     
     # File processing

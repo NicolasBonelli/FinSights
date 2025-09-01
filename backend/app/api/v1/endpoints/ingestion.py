@@ -68,9 +68,9 @@ async def upload_file(
         )
         
         await rabbitmq_client.publish_message(
-            queue_name="langextract_queue",
-            message_body=message_body,
-        )
+             queue_name="langextract_queue",
+             message_body=message_body,
+         )
 
         return IngestionResponse(
             message="File uploaded and processing started",

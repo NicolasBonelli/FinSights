@@ -30,13 +30,23 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+
 class LangExtractWorker:
     """Worker para extracción de entidades y relaciones con LangExtract"""
 
+    # Explicit configuration is recommended
+    config = lx.factory.ModelConfig(
+        model_id="gpt-4o",  # your Azure deployment name
+        provider="AzureOpenAILanguageModel",
+        provider_kwargs={
+            "api_key": os.getenv("AZURE_OPENAI_API_KEY"),
+            "azure_endpoint": os.getenv("AZURE_OPENAI_ENDPOINT"),
+            "api_version": os.getenv("AZURE_OPENAI_API_VERSION"),
+        },
+    )
+
     def __init__(self):
         self.settings = get_settings()
-        if self.settings.gemini_api_key:
-            os.environ["LANGEXTRACT_API_KEY"] = self.settings.gemini_api_key
         self.connection = None
         self.channel = None
         self.doc_converter = DocumentConverter()
@@ -96,30 +106,46 @@ class LangExtractWorker:
         self.channel = await self.connection.channel()
         await self.channel.set_qos(prefetch_count=1)
 
-    def extract_entities_and_relations(self, text: str):
-        """Usar LangExtract para extraer entidades y relaciones financieras"""
-        result = lx.extract(
-            text_or_documents=text,
-            prompt_description=self.prompt,
-            examples=self.examples,
-            model_id="gemini-1.5-flash",   # Modelo oficial soportado por LangExtract
-            extraction_passes=3,
-            max_workers=10,
-            max_char_buffer=1500
-        )
+    async def extract_entities_and_relations(self, text: str):
+        """Usar LangExtract para extraer entidades y relaciones financieras con reintentos."""
+        max_retries = 5
+        base_delay = 10  # segundos
 
-        relations = []
-        for ext in result.extractions:
-            relations.append({
-                "id": str(uuid.uuid4()),
-                "doc_id": None,   # se completa en process_document
-                "entity_class": ext.extraction_class,
-                "entity_text": ext.extraction_text,
-                "attributes": ext.attributes,
-                "evidence_text": getattr(ext, "source_text", None),
-                "confidence": getattr(ext, "confidence", 0.9)
-            })
-        return relations
+        for attempt in range(max_retries):
+            try:
+                # lx.extract es síncrono, lo ejecutamos en un hilo para no bloquear asyncio
+                result = lx.extract(
+                    text_or_documents=text,
+                    prompt_description=self.prompt,
+                    examples=self.examples,
+                    config=self.config,                 # reuse the explicit configuration
+                    # Azure OpenAI generation params
+                    temperature=0.0,
+                )
+
+                relations = []
+                for ext in result.extractions:
+                    relations.append({
+                        "id": str(uuid.uuid4()),
+                        "doc_id": None,   # se completa en process_document
+                        "entity_class": ext.extraction_class,
+                        "entity_text": ext.extraction_text,
+                        "attributes": ext.attributes,
+                        "evidence_text": getattr(ext, "source_text", None),
+                        "confidence": getattr(ext, "confidence", 0.9)
+                    })
+                return relations
+            except Exception as e:
+                if "429" in str(e) and "RESOURCE_EXHAUSTED" in str(e):
+                    if attempt < max_retries - 1:
+                        delay = base_delay * (2 ** attempt)
+                        logger.warning(f"Rate limit excedido. Reintentando en {delay} segundos... (Intento {attempt + 1}/{max_retries})")
+                        await asyncio.sleep(delay)
+                    else:
+                        logger.error("Rate limit excedido. Se alcanzó el máximo de reintentos.")
+                        raise e
+                else:
+                    raise e
 
     async def download_and_extract_text(self, file_id: str) -> str:
         """Descargar archivo de Azure y extraer texto con Docling"""
@@ -156,7 +182,7 @@ class LangExtractWorker:
             text_content = await self.download_and_extract_text(file_id)
 
             # 2. Extraer entidades y relaciones
-            relations = self.extract_entities_and_relations(text_content)
+            relations = await self.extract_entities_and_relations(text_content)
 
             # 3. Guardar en Elasticsearch
             es_client = await get_elasticsearch_client()

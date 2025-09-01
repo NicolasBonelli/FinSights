@@ -5,6 +5,11 @@ Configuración: 3 LlamaIndex workers + 3 LangExtract workers
 
 import asyncio
 import logging
+
+# Silenciar loggers de librerías ruidosas
+logging.getLogger("docling").setLevel(logging.WARNING)
+logging.getLogger("langextract").setLevel(logging.WARNING)
+
 from backend.app.workers.llamaindex_worker import LlamaIndexWorker
 from backend.app.workers.langextract_worker import LangExtractWorker
 

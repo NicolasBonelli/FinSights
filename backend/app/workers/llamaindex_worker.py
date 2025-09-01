@@ -99,7 +99,7 @@ class LlamaIndexWorker:
             # 3. Generar embeddings solo para chunks pequeños
             if small_nodes:
                 small_texts = [node.text for node in small_nodes]
-                embeddings = self.embed_model.get_text_embedding_batch(small_texts)
+                embeddings = await asyncio.to_thread(self.embed_model.get_text_embedding_batch, small_texts)
                 logger.info(f"Number of embeddings generated: {len(embeddings)}")
             else:
                 embeddings = []

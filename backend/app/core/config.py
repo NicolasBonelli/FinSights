@@ -70,7 +70,12 @@ class Settings(BaseSettings):
     # Legacy LLM settings (kept for backward compatibility)
     anthropic_api_key: Optional[str] = None
     gemini_api_key: Optional[str] = None
+
+    azure_openai_api_key: Optional[str] = None
+    azure_openai_endpoint: Optional[str] = None
+    azure_openai_api_version: Optional[str] = None
     default_llm_provider: str = Field(default="azure_openai", description="Default LLM provider")
+    
     # File processing
     max_file_size_mb: int = Field(default=50, description="Maximum file size in MB")
     allowed_file_types: List[str] = Field(default=["pdf"], description="Allowed file types")

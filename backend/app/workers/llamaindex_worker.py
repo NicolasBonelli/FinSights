@@ -88,8 +88,8 @@ class LlamaIndexWorker:
             doc = Document(text=text_content, doc_id=doc_id)
             
             # 2. Crear chunks pequeños y grandes
-            small_chunker = SentenceSplitter(chunk_size=300, chunk_overlap=20)
-            parent_chunker = SentenceSplitter(chunk_size=1500, chunk_overlap=50)
+            small_chunker = SentenceSplitter(chunk_size=250, chunk_overlap=20)
+            parent_chunker = SentenceSplitter(chunk_size=750, chunk_overlap=50)
             
             small_nodes = small_chunker.get_nodes_from_documents([doc])
             parent_nodes = parent_chunker.get_nodes_from_documents([doc])
@@ -99,7 +99,7 @@ class LlamaIndexWorker:
             # 3. Generar embeddings solo para chunks pequeños
             if small_nodes:
                 small_texts = [node.text for node in small_nodes]
-                embeddings = self.embed_model.get_text_embedding_batch(small_texts)
+                embeddings = await asyncio.to_thread(self.embed_model.get_text_embedding_batch, small_texts)
                 logger.info(f"Number of embeddings generated: {len(embeddings)}")
             else:
                 embeddings = []
@@ -156,11 +156,11 @@ class LlamaIndexWorker:
                     doc_id=data["doc_id"],
                     company_id=data["company_id"]
                 )
-                await message.ack()
-                
             except Exception as e:
                 logger.error(f"Error procesando mensaje: {e}")
-                await message.nack()
+                # Relanzamos la excepción para que el contexto message.process()
+                # la capture y haga el nack (descartar) automáticamente.
+                raise
     
     async def start_consuming(self):
         """Iniciar consumo de mensajes"""

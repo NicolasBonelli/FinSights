@@ -1,0 +1,32 @@
+financial_risk_assessment_task:
+  description: >
+    Conduct comprehensive financial risk assessment including liquidity, credit, and solvency analysis.
+    Analyze financial ratios, cash flow patterns, debt structures, and working capital management.
+    Identify potential financial stress indicators and early warning signs.
+    
+    Input: MergedContext with financial data and company information
+    Output: Financial risk assessment with identified risk factors
+  expected_output: >
+    Detailed financial risk analysis with risk levels and mitigation recommendations
+
+regulatory_risk_evaluation_task:
+  description: >
+    Evaluate regulatory compliance status and potential regulatory risks.
+    Assess compliance with financial regulations, industry standards, and legal requirements.
+    Identify regulatory changes that could impact the business and compliance gaps.
+    
+    Input: Company information and regulatory context
+    Output: Regulatory risk assessment with compliance status
+  expected_output: >
+    Comprehensive regulatory risk evaluation with compliance recommendations
+
+market_operational_risk_task:
+  description: >
+    Assess market risks and operational vulnerabilities that could impact business performance.
+    Analyze market volatility, competitive threats, supply chain dependencies, and operational risks.
+    Evaluate strategic risks and external factors that could affect long-term sustainability.
+    
+    Input: Market context and operational information
+    Output: Market and operational risk assessment
+  expected_output: >
+    RiskSignalsOutput with comprehensive risk analysis and prioritized risk factors

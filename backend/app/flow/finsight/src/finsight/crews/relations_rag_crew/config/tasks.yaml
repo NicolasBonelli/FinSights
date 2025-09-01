@@ -1,0 +1,12 @@
+relations_retrieval_task:
+  description: >
+    Retrieve and analyze structured relationships from financial documents.
+    Use LangExtract knowledge graph to find connections between entities, KPIs,
+    business areas, and financial metrics. Trace dependencies, causalities, and
+    correlations to provide deep relational context. Extract relationship patterns
+    that complement the hybrid search results.
+    
+    Input: RoutingPlan with normalized query and constraints
+    Output: RelationalContext with structured relationships and connections
+  expected_output: >
+    RelationalContext object containing structured relationships and entity connections

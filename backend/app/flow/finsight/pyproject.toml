@@ -1,0 +1,21 @@
+[project]
+name = "finsight"
+version = "0.1.0"
+description = "finsight using crewAI"
+authors = [{ name = "Bonelli Nicolás - Adriel Ferrero", email = "nico.bonellidelhoyo@gmail.com  adrielram@gmail.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]>=0.175.0,<1.0.0",
+]
+
+[project.scripts]
+kickoff = "finsight.main:kickoff"
+run_crew = "finsight.main:kickoff"
+plot = "finsight.main:plot"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "flow"

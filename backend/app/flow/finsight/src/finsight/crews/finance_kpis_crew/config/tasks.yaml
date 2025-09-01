@@ -1,0 +1,33 @@
+extract_task:
+  description: >
+    Extract financial KPIs from merged context.
+    Identify and parse key financial metrics including revenue,
+    profitability, liquidity, and efficiency ratios from both
+    hybrid and relational context sources.
+    
+    Input: MergedContext with hybrid and relational items
+    Output: List of KPIItem objects with extracted metrics
+  expected_output: >
+    List of KPIItem objects extracted from context
+
+time_series_task:
+  description: >
+    Perform time series analysis on extracted KPIs.
+    Align time periods, calculate period-over-period changes,
+    and compute growth rates including QoQ, YoY, and CAGR.
+    
+    Input: List of extracted KPIItem objects
+    Output: KPIs with calculated time series metrics
+  expected_output: >
+    List of KPIItem objects with time series analysis
+
+validation_task:
+  description: >
+    Validate KPI consistency and accuracy.
+    Cross-check KPIs against multiple sources, identify
+    discrepancies, and ensure financial relationships are logical.
+    
+    Input: KPIs with time series analysis
+    Output: Validated KPIs with consistency report
+  expected_output: >
+    Validation results with clean KPI list and inconsistency report
